@@ -1,13 +1,7 @@
 try:
-    # Primary: For app running as module (e.g. uvicorn backend.main:app)
     from backend import models, database
 except ImportError:
-    try:
-        # Fallback: For relative import within package
-        from . import models, database
-    except ImportError:
-        # Fallback 2: For script execution
-        import models, database
+    import models, database
 from sqlalchemy.orm import Session
 
 def seed_rooms():
