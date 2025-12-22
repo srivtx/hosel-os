@@ -3,9 +3,14 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from pydantic import BaseModel
 from datetime import datetime
-from backend.database import get_db
-from backend.models import MarketplaceItem, Student
-from backend.routers.students import get_current_student
+try:
+    from backend.database import get_db
+    from backend.models import MarketplaceItem, Student
+    from backend.routers.students import get_current_student
+except ImportError:
+    from database import get_db
+    from models import MarketplaceItem, Student
+    from routers.students import get_current_student
 
 router = APIRouter(
     prefix="/marketplace",
