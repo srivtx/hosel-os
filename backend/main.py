@@ -51,7 +51,7 @@ def read_root():
 def seed_database():
     try:
         from .seed import seed_rooms
-        seed_rooms()
-        return {"message": "Database seeded successfully!"}
+        result = seed_rooms()
+        return {"message": "Seeding operation completed", "details": result}
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": str(e), "type": type(e).__name__}

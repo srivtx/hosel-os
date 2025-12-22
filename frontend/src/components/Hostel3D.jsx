@@ -164,8 +164,13 @@ const Hostel3D = ({ students = [] }) => {
                                             btn.textContent = "Building Rooms...";
                                             btn.disabled = true;
                                         }
-                                        await roomsService.seed();
-                                        window.location.reload();
+                                        const res = await roomsService.seed();
+                                        if (res.error) {
+                                            alert("Seeding Error: " + res.error);
+                                        } else {
+                                            alert(`Seed Result: ${res.details.status} (Count: ${res.details.count})`);
+                                            window.location.reload();
+                                        }
                                     } catch (e) {
                                         alert("Failed to seed: " + e.message);
                                     }
