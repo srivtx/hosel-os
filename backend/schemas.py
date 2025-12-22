@@ -154,3 +154,22 @@ class AttendanceLog(AttendanceLogBase):
 class LocationSetting(BaseModel):
     latitude: float
     longitude: float
+
+class ParcelBase(BaseModel):
+    courier: str
+    student_id: int
+
+class ParcelCreate(ParcelBase):
+    pass
+
+class Parcel(ParcelBase):
+    id: int
+    pickup_code: str
+    status: str
+    arrival_time: datetime
+    collected_at: Optional[datetime] = None
+    
+    # Helper to show student name in UI if needed, but relationship handles it in ORM
+    
+    class Config:
+        from_attributes = True

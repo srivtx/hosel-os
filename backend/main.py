@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from . import models, database
-from .routers import students, rent, discipline, laundry, complaints, gate_pass, monitoring, attendance
+from .routers import students, rent, discipline, laundry, complaints, gate_pass, monitoring, attendance, parcels, mess, rooms, marketplace
 
 # Create database tables
 models.Base.metadata.create_all(bind=database.engine)
@@ -24,6 +24,10 @@ app.include_router(complaints.router)
 app.include_router(gate_pass.router)
 app.include_router(monitoring.router)
 app.include_router(attendance.router)
+app.include_router(parcels.router)
+app.include_router(mess.router)
+app.include_router(rooms.router)
+app.include_router(marketplace.router)
 
 @app.get("/")
 def read_root():

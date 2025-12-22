@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, CreditCard, MessageSquare, LogOut, WashingMachine, Zap, QrCode, Calendar } from 'lucide-react';
+import { LayoutDashboard, Users, CreditCard, MessageSquare, LogOut, WashingMachine, Zap, QrCode, Calendar, Package, Utensils, ShoppingBag } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../context/AuthContext';
 
@@ -60,13 +60,18 @@ const DashboardLayout = ({ children }) => {
                     )}
 
                     {/* Common Links */}
+                    <SidebarItem icon={Package} label="Mailroom" path="/mailroom" />
+                    <SidebarItem icon={Utensils} label="Smart Mess" path="/mess" />
                     <SidebarItem icon={WashingMachine} label="Laundry" path="/laundry" />
                     <SidebarItem icon={Zap} label="Smart Energy" path="/energy" />
                     <SidebarItem icon={QrCode} label="Gate Pass" path="/gate" />
 
                     {/* Student Only Links (if any specific, e.g. "My Complaints") */}
                     {user?.role === 'student' && (
-                        <SidebarItem icon={MessageSquare} label="My Complaints" path="/complaints" />
+                        <>
+                            <SidebarItem icon={ShoppingBag} label="Marketplace" path="/marketplace" />
+                            <SidebarItem icon={MessageSquare} label="My Complaints" path="/complaints" />
+                        </>
                     )}
                 </nav>
 

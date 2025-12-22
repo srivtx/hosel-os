@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Users, CreditCard, AlertCircle, MessageSquare, Zap, DollarSign, AlertTriangle } from 'lucide-react';
+import { Users, CreditCard, AlertCircle, MessageSquare, Zap, DollarSign, AlertTriangle, Box } from 'lucide-react';
 import { cn } from '../lib/utils';
 import studentsService from '../services/studentsService';
 import rentService from '../services/rentService';
 import complaintService from '../services/complaintService';
 import monitoringService from '../services/monitoringService';
 import attendanceService from '../services/attendanceService';
-import { useAuth } from '../context/AuthContext'; // Assuming AuthContext provides useAuth
-import { useNavigate } from 'react-router-dom'; // Assuming react-router-dom for navigation
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import Hostel3D from '../components/Hostel3D';
 
 const StatCard = ({ icon: Icon, title, value, subtext, trend, colorClass }) => (
     <div className="p-6 rounded-2xl bg-card border border-white/5 backdrop-blur-sm relative overflow-hidden group hover:border-white/10 transition-colors">
@@ -32,20 +33,25 @@ const Dashboard = () => {
         totalStudents: 0,
         pendingDues: 0,
         pendingDuesCount: 0,
+        energyBill: 0,
+        energyLabel: 'Est. Bill',
+        // ... (other stats if needed)
         activeIssues: 0,
         totalComplaints: 0,
-        pendingComplaints: 0,
-        energyBill: 0,
-        energyLabel: 'Est. Bill'
+        pendingComplaints: 0
     });
     const [loading, setLoading] = useState(true);
     const [attendance, setAttendance] = useState(null);
+    const [show3D, setShow3D] = useState(false);
+
+    const [studentsList, setStudentsList] = useState([]);
 
     useEffect(() => {
         const fetchStats = async () => {
+            // ... existing fetch logic
             try {
-                // Fetch existing stats...
                 const students = await studentsService.getAll();
+                setStudentsList(students); // Store for 3D view
                 const payments = await rentService.getPending();
                 const complaints = await complaintService.getAll();
 
@@ -53,7 +59,6 @@ const Dashboard = () => {
                 const pendingAmount = pendingRentPayments.reduce((sum, p) => sum + p.amount, 0);
                 const activeComplaints = complaints.filter(c => c.status !== 'Resolved');
 
-                // Fetch Energy Stats
                 let energyData = { projected_bill: 0, total_bill: 0 };
                 try {
                     if (user?.role === 'admin') {
@@ -63,9 +68,7 @@ const Dashboard = () => {
                         const res = await monitoringService.getStudentStats(user.id);
                         energyData = res.data;
                     }
-                } catch (e) {
-                    console.error("Energy stats fetch failed", e);
-                }
+                } catch (e) { }
 
                 setStats({
                     totalStudents: students.length,
@@ -85,16 +88,15 @@ const Dashboard = () => {
         };
 
         const checkAttendance = () => {
+            // ... existing attendance logic
             if (user?.role === 'student' && navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     async (position) => {
                         try {
                             const { latitude, longitude } = position.coords;
-                            const res = await attendanceService.markAttendance(latitude, longitude);
+                            const res = await attendanceService.markAttendance(latitude, longitude, user.id);
                             setAttendance(res.data);
-                        } catch (error) {
-                            // console.error("Auto-attendance failed", error);
-                        }
+                        } catch (error) { }
                     },
                     (error) => console.log("Silent location denied")
                 );
@@ -119,80 +121,80 @@ const Dashboard = () => {
                     <p className="text-muted-foreground mt-1">Here's what's happening in your hostel today.</p>
                 </div>
 
-                {/* Attendance Status Pill */}
-                {(user?.role === 'student' || user?.role === 'admin') && (
-                    <div className="flex flex-col items-end gap-1">
-                        {attendance ? (
-                            <div className={`px-4 py-2 rounded-full border flex items-center gap-2 text-sm font-medium animate-in fade-in slide-in-from-right-4 ${attendance.status === 'Present'
-                                ? 'bg-green-500/10 border-green-500/20 text-green-400'
-                                : 'bg-red-500/10 border-red-500/20 text-red-400'
-                                }`}>
-                                <div className={`w-2 h-2 rounded-full ${attendance.status === 'Present' ? 'bg-green-400 animate-pulse' : 'bg-red-500'
-                                    }`} />
-                                {attendance.status === 'Present'
-                                    ? `Marked Present (${Math.round(attendance.distance_meters)}m)`
-                                    : `Away (${(attendance.distance_meters / 1000).toFixed(1)}km)`
-                                }
-                            </div>
-                        ) : user?.role === 'student' ? (
-                            <button
-                                onClick={() => {
-                                    alert("Requesting Location Access... Please click Allow if prompted.");
-                                    if (navigator.geolocation) {
-                                        navigator.geolocation.getCurrentPosition(
-                                            async (position) => {
-                                                try {
-                                                    const { latitude, longitude } = position.coords;
-                                                    // Pass user.id properly
-                                                    const res = await attendanceService.markAttendance(latitude, longitude, user.id);
-                                                    setAttendance(res.data);
-                                                    alert("Success! Marked as " + res.data.status);
-                                                } catch (err) {
-                                                    // console.error(err);
-                                                    alert("Failed to mark attendance: " + err.message);
-                                                }
-                                            },
-                                            (err) => alert("Location denied or error: " + err.message)
-                                        );
-                                    } else {
-                                        alert("Geolocation not supported by this browser.");
-                                    }
-                                }}
-                                className="text-xs text-primary underline hover:text-primary/80"
-                            >
-                                📍 Tap to Check In
-                            </button>
-                        ) : null}
+                <div className="flex flex-col items-end gap-2">
+                    {/* 3D Toggle */}
+                    <button
+                        onClick={() => setShow3D(!show3D)}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-all ${show3D ? 'bg-blue-600 border-blue-500 text-white' : 'bg-card border-white/10 text-muted-foreground hover:text-white'
+                            }`}
+                    >
+                        <Box size={16} />
+                        {show3D ? 'Hide 3D Twin' : 'View 3D Twin'}
+                    </button>
 
-                        {/* Admin Set Location Button */}
-                        {user?.role === 'admin' && (
-                            <button
-                                onClick={() => {
-                                    if (confirm("Set CURRENT location as the new Hostel Location? All student checks will be measured against this point.")) {
-                                        if (navigator.geolocation) {
-                                            navigator.geolocation.getCurrentPosition(
-                                                async (position) => {
-                                                    try {
-                                                        const { latitude, longitude } = position.coords;
-                                                        await attendanceService.setLocation(latitude, longitude);
-                                                        alert("Hostel Location Updated to: " + latitude + ", " + longitude);
-                                                    } catch (err) {
-                                                        alert("Failed to set location");
-                                                    }
-                                                },
-                                                (err) => alert("Location denied")
-                                            );
-                                        }
+                    {/* Attendance Status Pill */}
+                    {(user?.role === 'student' || user?.role === 'admin') && (
+                        <div className="flex flex-col items-end gap-1">
+                            {attendance ? (
+                                <div className={`px-4 py-2 rounded-full border flex items-center gap-2 text-sm font-medium animate-in fade-in slide-in-from-right-4 ${attendance.status === 'Present'
+                                    ? 'bg-green-500/10 border-green-500/20 text-green-400'
+                                    : 'bg-red-500/10 border-red-500/20 text-red-400'
+                                    }`}>
+                                    <div className={`w-2 h-2 rounded-full ${attendance.status === 'Present' ? 'bg-green-400 animate-pulse' : 'bg-red-500'
+                                        }`} />
+                                    {attendance.status === 'Present'
+                                        ? `Marked Present (${Math.round(attendance.distance_meters)}m)`
+                                        : `Away (${(attendance.distance_meters / 1000).toFixed(1)}km)`
                                     }
-                                }}
-                                className="text-[10px] text-muted-foreground hover:text-foreground mt-1"
-                            >
-                                (Admin: Set Hostel Location)
-                            </button>
-                        )}
-                    </div>
-                )}
+                                </div>
+                            ) : user?.role === 'student' ? (
+                                <button
+                                    onClick={() => {
+                                        // ... existing button logic
+                                        alert("Requesting Location...");
+                                        if (navigator.geolocation) {
+                                            navigator.geolocation.getCurrentPosition(async (pos) => {
+                                                try {
+                                                    const res = await attendanceService.markAttendance(pos.coords.latitude, pos.coords.longitude, user.id);
+                                                    setAttendance(res.data);
+                                                    alert("Success: " + res.data.status);
+                                                } catch (e) { alert("Failed: " + e.message); }
+                                            });
+                                        }
+                                    }}
+                                    className="text-xs text-primary underline hover:text-primary/80"
+                                >
+                                    📍 Tap to Check In
+                                </button>
+                            ) : null}
+
+                            {/* Admin Set Location Button */}
+                            {user?.role === 'admin' && (
+                                <button
+                                    onClick={async () => {
+                                        if (navigator.geolocation && confirm("Set HOSTEL Location to CURRENT location?")) {
+                                            navigator.geolocation.getCurrentPosition(async (pos) => {
+                                                await attendanceService.setLocation(pos.coords.latitude, pos.coords.longitude);
+                                                alert("Location Updated!");
+                                            });
+                                        }
+                                    }}
+                                    className="text-[10px] text-muted-foreground hover:text-foreground mt-1"
+                                >
+                                    (Admin: Set Hostel Location)
+                                </button>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
+
+            {/* 3D View Section */}
+            {show3D && (
+                <div className="animate-in fade-in slide-in-from-top-4 duration-500">
+                    <Hostel3D students={studentsList} />
+                </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard

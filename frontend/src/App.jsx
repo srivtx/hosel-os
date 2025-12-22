@@ -12,6 +12,9 @@ import Login from './pages/Login';
 import GatePass from './pages/GatePass';
 import Energy from './pages/Energy';
 import Attendance from './pages/Attendance';
+import Mailroom from './pages/Mailroom';
+import Mess from './pages/Mess';
+import Marketplace from './pages/Marketplace';
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
@@ -22,6 +25,14 @@ const ProtectedRoute = ({ children }) => {
   }
 
   return <DashboardLayout>{children}</DashboardLayout>;
+};
+
+const StudentRoute = ({ children }) => {
+  const { user } = useAuth();
+  if (user?.role !== 'student') {
+    return <Navigate to="/" replace />;
+  }
+  return children;
 };
 
 function App() {
@@ -37,7 +48,11 @@ function App() {
           <Route path="/gate" element={<ProtectedRoute><GatePass /></ProtectedRoute>} />
           <Route path="/energy" element={<ProtectedRoute><Energy /></ProtectedRoute>} />
           <Route path="/attendance" element={<ProtectedRoute><Attendance /></ProtectedRoute>} />
+          <Route path="/mailroom" element={<ProtectedRoute><Mailroom /></ProtectedRoute>} />
+          <Route path="/mess" element={<ProtectedRoute><Mess /></ProtectedRoute>} />
           <Route path="/complaints" element={<ProtectedRoute><Complaints /></ProtectedRoute>} />
+          <Route path="/complaints" element={<ProtectedRoute><Complaints /></ProtectedRoute>} />
+          <Route path="/marketplace" element={<ProtectedRoute><StudentRoute><Marketplace /></StudentRoute></ProtectedRoute>} />
         </Routes>
       </Router>
     </AuthProvider>

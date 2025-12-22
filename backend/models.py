@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Date, DateTime, Text, Float
+from datetime import datetime
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from .database import Base
@@ -12,9 +13,10 @@ class Student(Base):
     room_number = Column(String)
     move_in_date = Column(Date)
     move_out_date = Column(Date, nullable=True)
-    move_out_date = Column(Date, nullable=True)
     is_active = Column(Boolean, default=True)
     password = Column(String, default="password") # Default password for existing users
+    meal_credits = Column(Integer, default=30)
+    face_encoding = Column(Text, nullable=True)
 
     rent_payments = relationship("RentPayment", back_populates="student")
     discipline_logs = relationship("DisciplineLog", back_populates="student")
@@ -112,3 +114,31 @@ class SystemSetting(Base):
 
     key = Column(String, primary_key=True, index=True)
     value = Column(String)
+
+class Parcel(Base):
+    __tablename__ = "parcels"
+
+    id = Column(Integer, primary_key=True, index=True)
+    student_id = Column(Integer, ForeignKey("students.id"))
+    courier = Column(String)
+    pickup_code = Column(String)
+    status = Column(String, default="Waiting") # Waiting, Collected
+    arrival_time = Column(DateTime, default=datetime.now)
+    collected_at = Column(DateTime, nullable=True)
+
+    student = relationship("Student")
+
+class MarketplaceItem(Base):
+    __tablename__ = "marketplace_items"
+
+    id = Column(Integer, primary_key=True, index=True)
+    seller_id = Column(Integer, ForeignKey("students.id"))
+    title = Column(String)
+    description = Column(Text)
+    price = Column(Float)
+    condition = Column(String) # New, Like New, Used, Damaged
+    status = Column(String, default="Available") # Available, Sold
+    image_url = Column(String, nullable=True)
+    created_at = Column(DateTime, default=func.now())
+
+    seller = relationship("Student")

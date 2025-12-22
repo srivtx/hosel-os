@@ -1,7 +1,25 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Header
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from .. import models, schemas, database
+
+def get_current_student(
+    x_student_id: Optional[str] = Header(None, alias="X-Student-ID"),
+    db: Session = Depends(database.get_db)
+):
+    if not x_student_id:
+        return None # Or raise 401
+    
+    # Try parsing as int
+    try:
+        student_id = int(x_student_id)
+    except ValueError:
+        return None
+
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=401, detail="User not found")
+    return student
 
 router = APIRouter(
     prefix="/students",
