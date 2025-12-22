@@ -14,9 +14,9 @@ models.Base.metadata.create_all(bind=database.engine)
 try:
     from .seed import seed_rooms
     seed_rooms()
-except ImportError:
-    # Fallback if running locally as script
-    pass
+except ImportError as e:
+    # Fallback if running locally as script, but log it just in case
+    print(f"Auto-seeding skipped (ImportError): {e}")
 except Exception as e:
     print(f"Seeding failed: {e}")
 

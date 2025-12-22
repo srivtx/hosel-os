@@ -1,7 +1,10 @@
 try:
     from . import models, database
 except ImportError:
-    import models, database
+    try:
+        import models, database
+    except ImportError:
+        from backend import models, database
 from sqlalchemy.orm import Session
 
 def seed_rooms():
