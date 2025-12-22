@@ -31,7 +31,8 @@ export const AuthProvider = ({ children }) => {
             // We need to import api here or pass it, but better to fetch directly or use clean architecture
             // For now, importing api inside or assuming fetch.
             // Let's use fetch for simplicity to avoid circular deps if api.js uses context later
-            const response = await fetch('http://127.0.0.1:8000/students/login', {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+            const response = await fetch(`${API_URL}/students/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ phone, password })
