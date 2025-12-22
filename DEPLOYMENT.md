@@ -49,3 +49,15 @@ If you just want to show it to a friend *right now* without deploying:
 2.  Run the frontend locally: `npm run dev`
 3.  Install ngrok and run: `ngrok http 5173`
 4.  Share the link ngrok gives you.
+
+---
+
+## 🌱 Post-Deployment: Seeding the Database
+When you first deploy, the database is empty (No Rooms).
+To fix this, go to your **Render Dashboard** -> **Shell** (tab on the left) and run:
+
+```bash
+python seed_rooms.py
+```
+
+This will populate the rooms, and your 3D view will light up! ✨

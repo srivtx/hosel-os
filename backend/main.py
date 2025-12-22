@@ -10,6 +10,16 @@ except ImportError:
 # Create database tables
 models.Base.metadata.create_all(bind=database.engine)
 
+# Auto-seed database if empty (Fix for Render Free Tier)
+try:
+    from .seed import seed_rooms
+    seed_rooms()
+except ImportError:
+    # Fallback if running locally as script
+    pass
+except Exception as e:
+    print(f"Seeding failed: {e}")
+
 app = FastAPI(title="Hostel Management System")
 
 app.add_middleware(
