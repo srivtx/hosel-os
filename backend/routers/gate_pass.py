@@ -3,7 +3,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from typing import List
 from datetime import datetime, timedelta
-from .. import models, schemas, database
+try: from .. import models, schemas, database
+except ImportError:
+    import sys
+    sys.path.append("..")
+    import models, schemas, database
 
 router = APIRouter(
     prefix="/gate",

@@ -1,7 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, Header
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from .. import models, schemas, database
+try: from .. import models, schemas, database
+except ImportError:
+    import sys
+    sys.path.append("..")
+    import models, schemas, database
 
 def get_current_student(
     x_student_id: Optional[str] = Header(None, alias="X-Student-ID"),

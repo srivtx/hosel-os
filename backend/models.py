@@ -2,7 +2,10 @@ from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Date, DateT
 from datetime import datetime
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from .database import Base
+try:
+    from .database import Base
+except ImportError:
+    from database import Base
 
 class Student(Base):
     __tablename__ = "students"

@@ -4,7 +4,11 @@ from sqlalchemy import func
 from typing import List
 from datetime import date, timedelta
 import random
-from .. import models, schemas, database
+try: from .. import models, schemas, database
+except ImportError:
+    import sys
+    sys.path.append("..")
+    import models, schemas, database
 
 router = APIRouter(
     prefix="/monitoring",

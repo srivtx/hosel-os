@@ -3,7 +3,11 @@ from sqlalchemy.orm import Session
 # import face_recognition
 import random
 import time
-from .. import models, schemas, database
+try: from .. import models, schemas, database
+except ImportError:
+    import sys
+    sys.path.append("..")
+    import models, schemas, database
 
 router = APIRouter(
     prefix="/mess",
