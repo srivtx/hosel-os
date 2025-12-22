@@ -1,7 +1,7 @@
 import sqlite3
 
 def migrate():
-    conn = sqlite3.connect('hostel.db')
+    conn = import os; sqlite3.connect(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'hostel.db'))
     cursor = conn.cursor()
     
     try:
