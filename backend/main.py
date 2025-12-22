@@ -46,3 +46,12 @@ app.include_router(marketplace.router)
 @app.get("/")
 def read_root():
     return {"message": "Hostel Management System API is running"}
+
+@app.post("/seed")
+def seed_database():
+    try:
+        from .seed import seed_rooms
+        seed_rooms()
+        return {"message": "Database seeded successfully!"}
+    except Exception as e:
+        return {"error": str(e)}

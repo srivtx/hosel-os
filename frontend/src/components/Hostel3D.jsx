@@ -150,9 +150,30 @@ const Hostel3D = ({ students = [] }) => {
 
                 {rooms.length === 0 && (
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-                        <div className="bg-black/50 p-4 rounded-xl text-center backdrop-blur-sm border border-white/10">
-                            <p className="text-white font-bold mb-1">No Rooms Found</p>
-                            <p className="text-gray-400 text-xs text-balance">The database is empty. Please run the seeding script.</p>
+                        <div className="bg-black/80 p-8 rounded-2xl text-center backdrop-blur-md border border-white/10 shadow-2xl pointer-events-auto">
+                            <span className="text-4xl mb-4 block">🏗️</span>
+                            <p className="text-white font-bold text-xl mb-2">Initialize 3D World</p>
+                            <p className="text-gray-400 text-sm mb-6 max-w-xs mx-auto">
+                                The 3D view is empty. Initialize the database with demo room data to see the visualization.
+                            </p>
+                            <button
+                                onClick={async () => {
+                                    try {
+                                        const btn = document.activeElement;
+                                        if (btn) {
+                                            btn.textContent = "Building Rooms...";
+                                            btn.disabled = true;
+                                        }
+                                        await roomsService.seed();
+                                        window.location.reload();
+                                    } catch (e) {
+                                        alert("Failed to seed: " + e.message);
+                                    }
+                                }}
+                                className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-blue-500/25 active:scale-95"
+                            >
+                                Build Demo Rooms
+                            </button>
                         </div>
                     </div>
                 )}

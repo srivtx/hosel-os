@@ -8,6 +8,10 @@ const roomsService = {
     getById: async (id) => {
         const response = await api.get(`/rooms/${id}`);
         return response.data;
+    },
+    seed: async () => {
+        const response = await api.post('/seed');
+        return response.data;
     }
 };
 
