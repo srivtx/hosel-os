@@ -1,7 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from . import models, database
-from .routers import students, rent, discipline, laundry, complaints, gate_pass, monitoring, attendance, parcels, mess, rooms, marketplace
+try:
+    from . import models, database
+    from .routers import students, rent, discipline, laundry, complaints, gate_pass, monitoring, attendance, parcels, mess, rooms, marketplace
+except ImportError:
+    import models, database
+    from routers import students, rent, discipline, laundry, complaints, gate_pass, monitoring, attendance, parcels, mess, rooms, marketplace
 
 # Create database tables
 models.Base.metadata.create_all(bind=database.engine)
