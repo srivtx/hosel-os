@@ -98,6 +98,7 @@ class LaundryUsageBase(BaseModel):
 
 class LaundryUsageCreate(LaundryUsageBase):
     student_id: int
+    usage_date: Optional[datetime] = None
 
 class LaundryUsage(LaundryUsageBase):
     id: int
