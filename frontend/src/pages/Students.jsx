@@ -37,7 +37,14 @@ const Students = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await studentsService.create(formData);
+            // Fix 422 Error: Add default password
+            const payload = {
+                ...formData,
+                password: formData.phone || "123456"
+            };
+            console.log("Sending Student Payload:", payload);
+
+            await studentsService.create(payload);
             setIsModalOpen(false);
             fetchStudents();
             setFormData({
@@ -47,8 +54,8 @@ const Students = () => {
                 move_in_date: new Date().toISOString().split('T')[0]
             });
         } catch (error) {
-            alert("Failed to add student. Check console for details."); // Simple error handling for v1
             console.error('Error creating student:', error);
+            alert("Failed to add student. See console.");
         }
     };
 

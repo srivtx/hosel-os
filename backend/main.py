@@ -50,7 +50,11 @@ def read_root():
 @app.post("/seed")
 def seed_database():
     try:
-        from .seed import seed_rooms
+        try:
+            from backend.seed import seed_rooms
+        except ImportError:
+            from seed import seed_rooms
+            
         result = seed_rooms()
         return {"message": "Seeding operation completed", "details": result}
     except Exception as e:
